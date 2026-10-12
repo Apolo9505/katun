@@ -1,0 +1,991 @@
+<meta charset="utf-8">
+<title>Katun</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  :root {
+    --paper:#eef1ee; --surface:#fff; --surface-2:#f6f8f6; --ink:#16201c; --muted:#63706a;
+    --line:#d3dad4; --line-fort:#b4bfb7; --accent:#a50f15; --park:#2e7d32;
+    --mer:#dbe6ea; --terre:#e4e7e4;
+    --r1:#2c7bb6; --r2:#abd9e9; --r3:#ffffbf; --r4:#fdae61; --r5:#d7191c;
+    --sur1:#fff; --sur2:#0d3b56; --sur3:#5c4a00; --sur4:#5a2a00; --sur5:#fff;
+    --ombre:0 1px 2px rgba(22,32,28,.06);
+    --serif:"IBM Plex Serif",Georgia,serif;
+    --cond:"IBM Plex Sans Condensed","Helvetica Neue",Arial,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --paper:#111613; --surface:#19201c; --surface-2:#1f2723; --ink:#e5ebe6; --muted:#97a49d;
+    --line:#2b3530; --line-fort:#3d4a44; --accent:#f3705f; --park:#6cc072;
+    --mer:#151d20; --terre:#2a322d;
+    --r1:#2c7bb6; --r2:#abd9e9; --r3:#ffffbf; --r4:#fdae61; --r5:#d7191c;
+    --sur1:#fff; --sur2:#0d3b56; --sur3:#5c4a00; --sur4:#5a2a00; --sur5:#fff;
+    --ombre:0 1px 2px rgba(0,0,0,.4);
+  }}
+  :root[data-theme="dark"]{
+    --paper:#111613; --surface:#19201c; --surface-2:#1f2723; --ink:#e5ebe6; --muted:#97a49d;
+    --line:#2b3530; --line-fort:#3d4a44; --accent:#f3705f; --park:#6cc072;
+    --mer:#151d20; --terre:#2a322d;
+    --r1:#2c7bb6; --r2:#abd9e9; --r3:#ffffbf; --r4:#fdae61; --r5:#d7191c;
+    --sur1:#fff; --sur2:#0d3b56; --sur3:#5c4a00; --sur4:#5a2a00; --sur5:#fff;
+    --ombre:0 1px 2px rgba(0,0,0,.4);
+  }
+
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+  .page{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:36px 72px}
+  @media (max-width:560px){.page{padding-inline:16px;padding-block:24px 52px}}
+  h1,h2,h3{font-family:var(--cond);font-weight:600;text-wrap:balance;margin:0;line-height:1.15}
+  h1{font-size:clamp(30px,6vw,46px);letter-spacing:-.015em}
+  h2{font-size:clamp(20px,3.3vw,27px);letter-spacing:-.01em}
+  h3{font-size:16px}
+  p{margin:0}
+  .prose{max-width:66ch}
+  .prose+.prose{margin-top:12px}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .entete{display:flex;flex-direction:column;gap:10px}
+  .sous-titre{font-size:18px;color:var(--muted);font-style:italic;max-width:62ch}
+  section{margin-top:46px;display:flex;flex-direction:column;gap:16px}
+  .titre-bloc{display:flex;flex-direction:column;gap:5px}
+
+  /* ---------- carte ---------- */
+  .atelier{display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start}
+  @media (max-width:860px){.atelier{grid-template-columns:1fr}}
+  .reglages{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--ombre)}
+  .reglage{display:flex;flex-direction:column;gap:5px}
+  .reglage>label{font-family:var(--cond);font-size:13px;font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .reglage .valeur{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .cases{display:flex;flex-direction:column;gap:4px}
+  .cases label,.bascules label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer}
+  .bascules{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--line);padding-top:12px}
+  .sep{border-top:1px solid var(--line)}
+  .resultats{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:3px;max-height:172px;overflow-y:auto}
+  .resultats button{border:none;border-bottom:1px solid var(--line);border-radius:0;text-align:left;padding:5px 8px;background:var(--surface)}
+  .resultats button:last-child{border-bottom:none}
+  .resultats button:hover{background:var(--surface-2)}
+  .compteur{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:8px 10px;text-align:center}
+  .compteur b{font-size:16px;font-family:var(--cond)}
+  button{font-family:var(--mono);font-size:11.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line-fort);border-radius:3px;padding:6px 10px;cursor:pointer}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  .toile{position:relative;background:var(--mer);border:1px solid var(--line);border-radius:4px;overflow:hidden;box-shadow:var(--ombre)}
+  #carte{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+  .zoom{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:4px}
+  .zoom button{width:30px;height:30px;padding:0;font-size:15px;background:var(--surface);opacity:.94}
+  .echelle-legende{position:absolute;bottom:10px;left:10px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:7px 9px;font-family:var(--mono);font-size:10.5px;color:var(--muted);opacity:.95}
+  .echelle-legende .bandes{display:flex;margin:4px 0 2px}
+  .echelle-legende .bandes span{width:26px;height:9px}
+  .pastilles{display:flex;gap:10px;margin-top:5px;flex-wrap:wrap}
+  .pastilles i{font-style:normal;display:flex;align-items:center;gap:4px}
+  .pastilles b{width:9px;height:9px;border-radius:50%;display:inline-block;border:1px solid #2b2100}
+  .pastilles b.tri{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%);border:none}
+  .pastilles b.carre{border-radius:1px;border:1px solid #2b2100}
+
+  /* ---------- fiche ---------- */
+  .fiche{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:3px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+  .fiche h3{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+  .fiche .hab{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:400}
+  .criteres{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:1px;background:var(--line)}
+  .critere{background:var(--surface);padding:7px 9px;display:flex;flex-direction:column;gap:1px}
+  .critere .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .critere .v{font-family:var(--mono);font-size:13px}
+  .critere.ko .v{color:var(--accent)}
+  .critere.oui .v{color:var(--park)}
+  .sites-liste{border-top:1px solid var(--line);padding-top:8px}
+  .sites-liste .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .sites-liste ul{margin:4px 0 0;padding-left:18px;font-size:13px}
+  .sites-liste li{margin-top:2px}
+  .sites-liste li b{font-family:var(--cond);font-weight:600}
+  .sites-liste li span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .sites-liste a{font-family:var(--mono);font-size:11px;color:var(--accent)}
+
+  /* ---------- tableaux ---------- */
+  .outils{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+  .outils label{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer}
+  select,input[type=search]{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line-fort);border-radius:3px;padding:6px 8px;max-width:100%}
+  .cadre{background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--ombre);overflow:hidden}
+  table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;table-layout:fixed}
+  caption{caption-side:bottom;text-align:left;padding:9px 13px;font-family:var(--serif);font-size:12.5px;font-style:italic;color:var(--muted)}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+  thead th{background:var(--surface-2);font-family:var(--cond);font-weight:600;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-fort);cursor:pointer;user-select:none}
+  thead th:hover{color:var(--ink)}
+  thead th[aria-sort]{color:var(--ink)}
+  thead th .fl{opacity:0;margin-left:4px;font-size:9px}
+  thead th[aria-sort] .fl{opacity:1}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:var(--surface-2)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .lieu{font-family:var(--cond);font-size:14.5px;font-weight:600}
+  .dept{color:var(--muted);font-size:10.5px}
+  .sec{color:var(--muted);font-size:11px;display:block}
+  .ecarte td{opacity:.7}
+  .puce{display:inline-block;min-width:38px;text-align:center;padding:1px 6px;border-radius:3px;font-weight:600;font-variant-numeric:tabular-nums}
+  .s1{background:var(--r1);color:var(--sur1)}.s2{background:var(--r2);color:var(--sur2)}
+  .s3{background:var(--r3);color:var(--sur3)}.s4{background:var(--r4);color:var(--sur4)}
+  .s5{background:var(--r5);color:var(--sur5)}
+  .etiq{display:inline-block;padding:0 5px;border-radius:3px;font-size:10.5px;border:1px solid var(--line-fort);color:var(--muted);margin:1px 2px 0 0}
+  .etiq.ko{border-color:var(--accent);color:var(--accent)}
+  .ok{color:var(--park);font-weight:600}
+  .alerte{color:var(--accent);font-weight:600}
+  .tri-mobile{display:none}
+
+  /* Sous 760 px chaque ligne devient une fiche : jamais de défilement latéral. */
+  @media (max-width:760px){
+    .tri-mobile{display:flex;align-items:center;gap:6px}
+    table,thead,tbody,tr,td{display:block;width:100%}
+    thead{display:none}
+    table{table-layout:auto}
+    tbody tr{border-bottom:1px solid var(--line-fort);padding:8px 0}
+    tbody tr:last-child{border-bottom:none}
+    td{border:none;padding:3px 12px;display:grid;grid-template-columns:92px 1fr;gap:10px;text-align:left!important}
+    td::before{content:attr(data-libelle);font-family:var(--cond);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+    td.principal{grid-template-columns:1fr;padding-top:6px}
+    td.principal::before{display:none}
+  }
+
+  /* ---------- blocs du rapport ---------- */
+  .entonnoir{display:flex;flex-direction:column;gap:2px;font-family:var(--mono);font-size:12.5px}
+  .barre-ligne{display:grid;grid-template-columns:minmax(96px,150px) 1fr 104px;gap:10px;align-items:center;padding:4px 0}
+  .barre-piste{height:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+  .barre-jauge{height:100%;background:var(--line-fort)}
+  .barre-ligne.total{border-top:1px solid var(--line-fort);margin-top:5px;padding-top:9px;font-weight:600}
+  .barre-ligne.total .barre-jauge{background:var(--accent)}
+  .barre-val{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .attentes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .attente{border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:3px;background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .attente:last-child{border-top-color:var(--park)}
+  .attente ul{margin:0;padding-left:16px;font-size:13.5px;color:var(--muted)}
+  .courbe{display:flex;flex-direction:column;gap:2px;font-family:var(--mono);font-size:12.5px}
+  .courbe-ligne{display:grid;grid-template-columns:46px 1fr 56px;gap:9px;align-items:center;padding:3px 0}
+  .courbe-ligne .piste{height:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+  .courbe-ligne .jauge{height:100%;background:var(--line-fort)}
+  .courbe-ligne.saut{font-weight:600}
+  .courbe-ligne.saut .jauge{background:var(--accent)}
+  .courbe-ligne .val{text-align:right;font-variant-numeric:tabular-nums}
+  .courbe-ou{font-size:11px;color:var(--muted);padding-left:55px;margin-top:-2px}
+  .courbe-ligne.saut+.courbe-ou{color:var(--accent)}
+  .scenario h3{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:8px}
+  .scenario h3 .contraintes{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0}
+  .trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  .choix{border:1px solid var(--line);border-left:3px solid var(--line-fort);border-radius:3px;background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+  .choix.montagne{border-left-color:var(--r4)}.choix.ferme{border-left-color:var(--park)}.choix.compromis{border-left-color:var(--r2)}
+  .choix .obj{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .choix .ou{font-family:var(--cond);font-size:16px;font-weight:600}
+  .choix .detail{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.65}
+  .choix .detail b{color:var(--ink);font-weight:500}
+  .choix .ex{font-size:11px;color:var(--muted);font-style:italic}
+  .reserve{border:1px solid var(--line-fort);border-left:3px solid var(--accent);border-radius:3px;padding:14px 16px;background:var(--surface);display:flex;flex-direction:column;gap:7px}
+  .reserve p{font-size:14px;max-width:70ch}
+  .grille-scenarios{display:flex;flex-direction:column;gap:20px}
+  footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:5px 16px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="page">
+  <header class="entete">
+    <span class="eyebrow">Katun · 34 746 communes de France métropolitaine</span>
+    <h1>Où vivre, sous contrainte</h1>
+    <p class="sous-titre">Bouge les curseurs : la carte se recalcule commune par commune, directement dans la page. Plus c'est foncé, mieux la commune répond à l'ensemble des critères cochés ; une commune qui rate une condition n'est pas coloriée du tout.</p>
+  </header>
+
+  <section>
+    <div class="atelier">
+      <div class="reglages">
+        <div class="reglage">
+          <label for="r-turballe">La Turballe <span class="valeur" id="v-turballe">≤ 5 h</span></label>
+          <input type="range" id="r-turballe" min="1" max="10" value="5" step="1">
+        </div>
+        <div class="reglage">
+          <label for="r-paris">Paris <span class="valeur" id="v-paris">≤ 3 h</span></label>
+          <input type="range" id="r-paris" min="1" max="11" value="3" step="1">
+        </div>
+        <div class="reglage">
+          <label for="r-mode">Mode</label>
+          <select id="r-mode">
+            <option value="both">train ou voiture</option>
+            <option value="voiture">voiture seule</option>
+            <option value="train">train seul</option>
+          </select>
+        </div>
+        <div class="sep"></div>
+        <div class="reglage">
+          <label for="r-nature">Outdoor <span class="valeur" id="v-nature">≤ 30 km</span></label>
+          <input type="range" id="r-nature" min="5" max="100" value="30" step="5">
+          <label class="sousligne"><input type="checkbox" id="c-nature" checked> filtre actif</label>
+        </div>
+        <div class="reglage">
+          <label for="r-terrain">Terrain <span class="valeur" id="v-terrain">&lt; 1 000 €/m²</span></label>
+          <input type="range" id="r-terrain" min="1000" max="12000" value="1000" step="1000">
+        </div>
+        <div class="reglage">
+          <label for="r-bati">Bâti <span class="valeur" id="v-bati">&lt; 5 000 €/m²</span></label>
+          <input type="range" id="r-bati" min="1000" max="18000" value="5000" step="1000">
+          <label class="sousligne"><input type="checkbox" id="c-espace" checked> filtre actif</label>
+        </div>
+        <div class="reglage">
+          <label>Familles politiques</label>
+          <div class="cases" id="familles"></div>
+        </div>
+        <div class="sep"></div>
+        <div class="reglage">
+          <label for="q-commune">Chercher une commune</label>
+          <input type="search" id="q-commune" placeholder="nom de commune" autocomplete="off">
+          <div id="q-resultats" class="resultats" hidden></div>
+        </div>
+        <div class="compteur" id="compteur">—</div>
+        <div class="bascules">
+          <label><input type="checkbox" id="b-escalade" checked> sites d'escalade</label>
+          <label><input type="checkbox" id="b-parapente" checked> sites de parapente</label>
+          <label><input type="checkbox" id="b-parcs" checked> parcs nationaux et régionaux</label>
+          <label><input type="checkbox" id="b-noms" checked> noms de villes et de parcs</label>
+        </div>
+        <button type="button" id="reinit">Revenir aux réglages de base</button>
+      </div>
+
+      <div>
+        <div class="toile">
+          <canvas id="carte" width="900" height="866"></canvas>
+          <div class="zoom">
+            <button type="button" id="z-plus" aria-label="Zoomer">+</button>
+            <button type="button" id="z-moins" aria-label="Dézoomer">−</button>
+            <button type="button" id="z-reset" aria-label="Vue entière" title="Vue entière">⤢</button>
+          </div>
+          <div class="echelle-legende">
+            score
+            <div class="bandes"><span style="background:var(--r1)"></span><span style="background:var(--r2)"></span><span style="background:var(--r3)"></span><span style="background:var(--r4)"></span><span style="background:var(--r5)"></span></div>
+            0,25 · 0,35 · 0,45 · 0,55
+            <div class="pastilles">
+              <i><b style="background:#f2b705"></b>voies</i>
+              <i><b class="carre" style="background:#f2b705"></b>bloc</i>
+              <i><b class="tri" style="background:#00a651"></b>parapente</i>
+            </div>
+          </div>
+        </div>
+        <p class="sec" style="margin-top:8px">Clique une commune pour son détail · glisse pour déplacer · molette pour zoomer</p>
+        <div class="fiche" id="fiche" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">L'entonnoir</span><h2>Ce que chaque filtre coûte</h2></div>
+    <p class="prose">Nombre de communes qui survivent à chaque filtre pris isolément, avec les réglages en cours. C'est là qu'on voit lequel décide vraiment.</p>
+    <div class="entonnoir" id="entonnoir"></div>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">Partie 1 · zones</span><h2>Les zones les plus propices</h2></div>
+    <p class="prose">Les 400 communes les mieux notées <strong>aux réglages de base</strong>, regroupées par proximité géographique. Ce tableau ne bouge pas avec les curseurs : c'est le résultat figé de l'analyse initiale, qui sert de point de repère.</p>
+    <div class="outils">
+      <div class="tri-mobile"><label for="tri-zones">Trier par</label><select id="tri-zones"></select></div>
+    </div>
+    <div class="cadre"><table id="t-zones"><caption>Prix, temps et part de gauche : médianes de la zone.</caption><thead><tr>
+      <th data-type="txt" style="width:23%">Zone <span class="fl"></span></th>
+      <th data-type="num" class="num" style="width:10%">Score <span class="fl"></span></th>
+      <th data-type="num" style="width:14%">Trajets <span class="fl"></span></th>
+      <th data-type="num" style="width:14%">Prix €/m² <span class="fl"></span></th>
+      <th data-type="num" class="num" style="width:10%">Gauche <span class="fl"></span></th>
+      <th data-type="num" style="width:11%">Outdoor <span class="fl"></span></th>
+      <th data-type="txt" style="width:18%">Parc <span class="fl"></span></th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">Partie 2 · villes</span><h2>Les principales villes, filtre par filtre</h2></div>
+    <p class="prose">Une ville par bassin. <strong>Ce tableau suit les curseurs</strong> : le verdict et le score se recalculent avec la carte.</p>
+    <div class="outils">
+      <label><input type="checkbox" id="f-retenues"> seulement les villes retenues</label>
+      <input type="search" id="f-texte" placeholder="Filtrer : ville, parc, département…" aria-label="Filtrer les villes">
+      <div class="tri-mobile"><label for="tri-villes">Trier par</label><select id="tri-villes"></select></div>
+      <span class="eyebrow" id="compte-villes"></span>
+    </div>
+    <div class="cadre"><table id="t-villes"><caption>« Outdoor » : nombre de sites à moins de 30 km. « Gauche » : part moyenne des voix extrême gauche &amp; écologistes + gauche sur 31 scrutins, 1999-2026.</caption><thead><tr>
+      <th data-type="txt" style="width:20%">Ville <span class="fl"></span></th>
+      <th data-type="num" class="num" style="width:11%">Habitants <span class="fl"></span></th>
+      <th data-type="num" style="width:14%">Trajets <span class="fl"></span></th>
+      <th data-type="num" style="width:11%">Outdoor <span class="fl"></span></th>
+      <th data-type="num" style="width:14%">Prix €/m² <span class="fl"></span></th>
+      <th data-type="num" class="num" style="width:9%">Gauche <span class="fl"></span></th>
+      <th data-type="txt" style="width:21%">Verdict <span class="fl"></span></th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">Partie 3 · deux attentes</span><h2>La montagne d'un côté, la ferme de l'autre</h2></div>
+    <p class="prose">Les deux attentes du foyer ne tirent pas dans la même direction. Chaque commune reçoit donc deux notes, construites comme des rangs centiles parmi les 34 746 communes — aucun seuil arbitraire, et les trois composantes d'un profil pèsent pareil.</p>
+    <div class="attentes">
+      <div class="attente"><span class="eyebrow">Attente 1</span><h3>Montagne &amp; escalade</h3>
+        <ul><li>Sites d'escalade à moins de 30 km</li><li>Sites de parapente à moins de 30 km</li><li>Distance au site d'escalade le plus proche</li></ul></div>
+      <div class="attente"><span class="eyebrow">Attente 2</span><h3>Ferme &amp; famille</h3>
+        <ul><li>Temps de trajet jusqu'à La Turballe</li><li>Prix du terrain au m²</li><li>Densité de population de la commune</li></ul></div>
+    </div>
+    <div class="reserve"><p><strong>Le relief n'est pas mesuré.</strong> Le projet ne contient aucune donnée d'altitude. Les sites de parapente servent d'indicateur indirect — un décollage exige une pente — et les sites d'escalade de second indicateur. C'est une approximation, pas une mesure du relief.</p></div>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">L'arbitrage</span><h2>Ce qu'une heure de route vers La Turballe achète en montagne</h2></div>
+    <p class="prose">Meilleur score montagne atteignable selon le budget d'heures accordé vers La Turballe, la contrainte parisienne levée. La progression se fait par marches, signalées en rouge : entre deux marches, allonger le trajet ne rapporte rien.</p>
+    <div class="courbe" id="courbe"></div>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">Trois jeux de contraintes</span><h2>La meilleure zone, pour chaque attente</h2></div>
+    <div class="grille-scenarios" id="scenarios"></div>
+    <p class="prose">Trois lectures en ressortent. <strong>Sans rien changer</strong>, la montagne se résume aux coteaux de la Seine autour de Louviers et Vernon ; la ferme est déjà servie autour de Loudéac, à 2 h 30 des parents, avec du terrain à 24 €/m². Le compromis sous contraintes, c'est le <strong>bocage de l'Orne autour de La Ferté-Macé</strong> : 7 sites d'escalade, du terrain à 34 €/m² et 4 h de La Turballe.</p>
+    <p class="prose"><strong>En lâchant la contrainte parisienne</strong>, la presqu'île de Crozon et les monts d'Arrée entrent dans le jeu — du vrai relief breton à 4 h de La Turballe. <strong>En lâchant tout</strong>, la meilleure synthèse n'est pas les Alpes mais les <strong>monts du Cantal autour de Mauriac</strong> : 14 sites d'escalade, 40 décollages, du terrain à 32 €/m² et du bâti à 879 €/m² — le relief à un dixième du prix du foncier savoyard, contre 7 h de route au lieu de 9.</p>
+  </section>
+
+  <section>
+    <div class="titre-bloc"><span class="eyebrow">Réserves</span><h2>Ce que ces chiffres ne disent pas</h2></div>
+    <div class="reserve">
+      <p><strong>Bas-Rhin, Haut-Rhin et Moselle : 100 % de prix imputés.</strong> Ces départements relèvent du livre foncier et sont absents de la base DVF — zéro vente exploitable. Les prix y sont extrapolés depuis les départements voisins (signalés par <span class="alerte">‡</span>), pas mesurés.</p>
+      <p><strong>Les sites outdoor sont localisés à la commune.</strong> Ni la FFME ni la FFVL ne publient les coordonnées GPS des sites : les points de la carte marquent les communes équipées, et les distances partent de leur centre.</p>
+      <p><strong>Les temps de trajet sont le meilleur des deux modes</strong> (sauf si tu en choisis un seul) : voiture par isochrones IGN, train par le GTFS SNCF en incluant la voiture jusqu'à la gare la plus proche.</p>
+      <p><strong>La carte est une image d'environ 1 km par pixel.</strong> Huit communes sur 34 745 sont trop petites pour y tenir ; elles restent dans les tableaux et dans les comptages.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Sources : IGN Admin Express · DVF 2021-2025 · FFME · FFVL · ArcGIS Esri France/MNHN · GTFS SNCF</span>
+    <span>Calculs faits dans le navigateur</span>
+  </footer>
+</div>
+
+<script src="donnees.js"></script>
+<script>
+(function () {
+  "use strict";
+  var K = window.KATUN, N = K.n, MANQUANT = K.manquant;
+  var SEUILS = [0.25, 0.35, 0.45, 0.55];
+  var FAMILLES = [["exg", "Extrême gauche & écologistes", "Extrême gauche"],
+                  ["gau", "Gauche", "Gauche"], ["cent", "Centre", "Centre"],
+                  ["dte", "Droite", "Droite"], ["exd", "Extrême droite", "Extrême droite"]];
+  var BASE = { turballe: 5, paris: 3, mode: "both", nature: 30, natureOn: true,
+               terrain: 1000, bati: 5000, espaceOn: true, familles: ["exg", "gau"] };
+
+  function decoder(s, Type) {
+    var b = atob(s), n = b.length, u = new Uint8Array(n);
+    for (var i = 0; i < n; i++) u[i] = b.charCodeAt(i);
+    return new Type(u.buffer);
+  }
+  var C = {};
+  Object.keys(K.colonnes).forEach(function (k) { C[k] = decoder(K.colonnes[k], Uint16Array); });
+  var POP = decoder(K.population, Uint32Array);
+  var DEPT = decoder(K.dept_idx, Uint8Array);
+
+  function milliers(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function heures(min) {
+    if (min >= MANQUANT) return "—";
+    return Math.floor(min / 60) + " h " + String(Math.round(min) % 60).padStart(2, "0");
+  }
+  function virgule(x, d) { return x.toFixed(d).replace(".", ","); }
+  function niveau(s) { return s >= 0.55 ? 5 : s >= 0.45 ? 4 : s >= 0.35 ? 3 : s >= 0.25 ? 2 : 1; }
+  function puce(s) { return '<span class="puce s' + niveau(s) + '">' + virgule(s, 2) + "</span>"; }
+
+  // ---------- état ----------
+  var E = Object.assign({}, BASE);
+  var classes = new Uint8Array(N), scores = new Float32Array(N), retenues = new Uint8Array(N);
+  var parFiltre = {}, nbRetenues = 0;
+
+  function temps(i, prefixe) {
+    // Stockés au dixième de minute ; MANQUANT reste MANQUANT.
+    var v = C[prefixe + "_voiture"][i], t = C[prefixe + "_train"][i];
+    var m = E.mode === "voiture" ? v : E.mode === "train" ? t : Math.min(v, t);
+    return m >= MANQUANT ? MANQUANT : m / 10;
+  }
+  function scoreTransport(i, prefixe, hmax) {
+    var m = temps(i, prefixe);
+    if (m >= MANQUANT || m > hmax * 60) return -1;          // écartée
+    var s = 1 - (m / 60 - 1) / hmax;
+    return Math.max(0, Math.min(1, s));
+  }
+  function scoreNature(i) {
+    var a = Math.max(0, 1 - C.dist_escalade[i] / 10 / E.nature);
+    var b = Math.max(0, 1 - C.dist_parapente[i] / 10 / E.nature);
+    return (a + b) / 2;
+  }
+  function scoreEspace(i) {
+    var a = Math.max(0, 1 - C.prix_terrain[i] / E.terrain);
+    var b = Math.max(0, 1 - C.prix_bati[i] / E.bati);
+    return (a + b) / 2;
+  }
+  function scorePolitique(i) {
+    var s = 0;
+    for (var f = 0; f < E.familles.length; f++) s += C["part_" + E.familles[f]][i] / 10000;
+    return Math.min(1, s);
+  }
+
+  function calculer() {
+    var sansParis = E.paris > 10;
+    parFiltre = { "La Turballe": 0, "Paris": 0, "Outdoor": 0, "Prix au m²": 0, "Politique": 0 };
+    nbRetenues = 0;
+    for (var i = 0; i < N; i++) {
+      var st = scoreTransport(i, "turballe", E.turballe);
+      var sp = sansParis ? 1 : scoreTransport(i, "paris", E.paris);
+      if (st >= 0) parFiltre["La Turballe"]++;
+      if (sp >= 0) parFiltre["Paris"]++;
+      var sn = scoreNature(i), se = scoreEspace(i), sq = scorePolitique(i);
+      if (!E.natureOn || sn > 0) parFiltre["Outdoor"]++;
+      if (!E.espaceOn || se > 0) parFiltre["Prix au m²"]++;
+      if (sq > 0) parFiltre["Politique"]++;
+
+      var ok = st >= 0 && sp >= 0 && (!E.natureOn || sn > 0) && (!E.espaceOn || se > 0) && sq > 0;
+      retenues[i] = ok ? 1 : 0;
+      if (!ok) { classes[i] = 0; scores[i] = 0; continue; }
+      var somme = Math.min(st, sp), n = 1;
+      if (E.natureOn) { somme += sn; n++; }
+      if (E.espaceOn) { somme += se; n++; }
+      somme += sq; n++;
+      var s = somme / n;
+      scores[i] = s;
+      classes[i] = niveau(s);
+      nbRetenues++;
+    }
+  }
+
+  // ---------- carte ----------
+  var toile = document.getElementById("carte"), ctx = toile.getContext("2d");
+  var LARG = K.grille.largeur, HAUT = K.grille.hauteur;
+  var source = document.createElement("canvas");
+  source.width = LARG; source.height = HAUT;
+  var sctx = source.getContext("2d");
+  var idx = null, imageRes = null;
+  var vue = { x: 0, y: 0, zoom: 1 };
+
+  function couleurs() {
+    var cs = getComputedStyle(document.documentElement), t = [[0, 0, 0, 0]];
+    for (var k = 1; k <= 5; k++) {
+      var v = cs.getPropertyValue("--r" + k).trim();
+      t.push([parseInt(v.substr(1, 2), 16), parseInt(v.substr(3, 2), 16),
+              parseInt(v.substr(5, 2), 16), 217]);
+    }
+    return t;
+  }
+
+  function peindre() {
+    if (!idx) return;
+    var pal = couleurs(), d = imageRes.data, terre = getComputedStyle(document.documentElement)
+      .getPropertyValue("--terre").trim();
+    var tr = [parseInt(terre.substr(1, 2), 16), parseInt(terre.substr(3, 2), 16), parseInt(terre.substr(5, 2), 16)];
+    for (var p = 0, q = 0; p < idx.length; p++, q += 4) {
+      var c = idx[p];
+      if (c === 0) { d[q] = d[q + 1] = d[q + 2] = d[q + 3] = 0; continue; }
+      var k = classes[c - 1];
+      if (k === 0) { d[q] = tr[0]; d[q + 1] = tr[1]; d[q + 2] = tr[2]; d[q + 3] = 255; continue; }
+      var col = pal[k];
+      d[q] = col[0]; d[q + 1] = col[1]; d[q + 2] = col[2]; d[q + 3] = col[3];
+    }
+    sctx.putImageData(imageRes, 0, 0);
+    dessiner();
+  }
+
+  function ajusterTaille() {
+    var l = toile.parentElement.clientWidth;
+    toile.width = l; toile.height = Math.round(l * HAUT / LARG);
+    dessiner();
+  }
+  function bornerVue() {
+    var vl = toile.width / vue.zoom, vh = toile.height / vue.zoom;
+    var sl = LARG * (toile.width / LARG), _ = sl;
+    var maxX = LARG - LARG / vue.zoom, maxY = HAUT - HAUT / vue.zoom;
+    vue.x = Math.max(0, Math.min(maxX, vue.x));
+    vue.y = Math.max(0, Math.min(maxY, vue.y));
+  }
+  function versEcran(px, py) {
+    return [(px - vue.x) * toile.width / (LARG / vue.zoom),
+            (py - vue.y) * toile.height / (HAUT / vue.zoom)];
+  }
+  function versGrille(ex, ey) {
+    return [vue.x + ex * (LARG / vue.zoom) / toile.width,
+            vue.y + ey * (HAUT / vue.zoom) / toile.height];
+  }
+
+  function dessiner() {
+    if (!idx) return;
+    bornerVue();
+    var cs = getComputedStyle(document.documentElement);
+    ctx.fillStyle = cs.getPropertyValue("--mer").trim();
+    ctx.fillRect(0, 0, toile.width, toile.height);
+    ctx.imageSmoothingEnabled = vue.zoom < 2;
+    ctx.drawImage(source, vue.x, vue.y, LARG / vue.zoom, HAUT / vue.zoom,
+                  0, 0, toile.width, toile.height);
+    var e = toile.width / (LARG / vue.zoom);
+
+    if (document.getElementById("b-parcs").checked) {
+      K.parcs.forEach(function (p) {
+        ctx.strokeStyle = p.genre === "PN" ? cs.getPropertyValue("--park").trim() : "rgba(46,125,50,.65)";
+        ctx.lineWidth = p.genre === "PN" ? 1.6 : 1;
+        ctx.setLineDash(p.genre === "PN" ? [] : [4, 3]);
+        p.anneaux.forEach(function (a) {
+          ctx.beginPath();
+          for (var i = 0; i < a.length; i++) {
+            var s = versEcran(a[i][0], a[i][1]);
+            i ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]);
+          }
+          ctx.stroke();
+        });
+      });
+      ctx.setLineDash([]);
+    }
+    // Escalade et parapente se distinguent par la forme autant que par la
+    // couleur : deux pastilles rondes de teintes voisines étaient illisibles.
+    var r = Math.max(1.9, Math.min(5, 2.2 * e * 1.4));
+    if (document.getElementById("b-escalade").checked) {
+      // Rond = voies (ou voies et bloc), carré = bloc seul.
+      ctx.fillStyle = "#f2b705"; ctx.strokeStyle = "#2b2100"; ctx.lineWidth = 1.1;
+      K.sites.escalade.forEach(function (p) {
+        var s = versEcran(p[0], p[1]);
+        if (s[0] < -8 || s[1] < -8 || s[0] > toile.width + 8 || s[1] > toile.height + 8) return;
+        if (K.genre_escalade[p[2]] === 1) {
+          ctx.beginPath(); ctx.rect(s[0] - r, s[1] - r, r * 2, r * 2); ctx.fill(); ctx.stroke();
+        } else {
+          ctx.beginPath(); ctx.arc(s[0], s[1], r, 0, 6.2832); ctx.fill(); ctx.stroke();
+        }
+      });
+    }
+    if (document.getElementById("b-parapente").checked) {
+      ctx.fillStyle = "#00a651"; ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = 1.2;
+      var h = r * 1.5;
+      K.sites.parapente.forEach(function (p) {
+        var s = versEcran(p[0], p[1]);
+        if (s[0] < -8 || s[1] < -8 || s[0] > toile.width + 8 || s[1] > toile.height + 8) return;
+        ctx.beginPath();
+        ctx.moveTo(s[0], s[1] - h * 0.62);
+        ctx.lineTo(s[0] + h * 0.62, s[1] + h * 0.45);
+        ctx.lineTo(s[0] - h * 0.62, s[1] + h * 0.45);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      });
+    }
+
+    // Étiquettes : d'abord les parcs, puis les villes par ordre d'importance,
+    // chacune posée seulement si la place est libre — sinon la carte devient
+    // illisible dès qu'on zoome.
+    var occupes = [];
+    function poser(texte, x, y, police, couleur) {
+      ctx.font = police;
+      var l = ctx.measureText(texte).width, ht = 12;
+      var b = [x - l / 2 - 2, y - ht / 2 - 1, l + 4, ht + 2];
+      for (var i = 0; i < occupes.length; i++) {
+        var o = occupes[i];
+        if (b[0] < o[0] + o[2] && b[0] + b[2] > o[0] && b[1] < o[1] + o[3] && b[1] + b[3] > o[1]) return;
+      }
+      occupes.push(b);
+      ctx.lineWidth = 3.2; ctx.strokeStyle = "rgba(255,255,255,.92)";
+      ctx.strokeText(texte, x, y);
+      ctx.fillStyle = couleur; ctx.fillText(texte, x, y);
+    }
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    var vert = "#1b5e20";
+    if (document.getElementById("b-parcs").checked && vue.zoom >= 1.8) {
+      K.parcs.forEach(function (p) {
+        var s = versEcran(p.x, p.y);
+        if (s[0] < 0 || s[1] < 0 || s[0] > toile.width || s[1] > toile.height) return;
+        poser(p.nom, s[0], s[1], (p.genre === "PN" ? "600 " : "500 ") + "11px " +
+              cs.getPropertyValue("--cond"), vert);
+      });
+    }
+    if (document.getElementById("b-noms").checked) {
+      // Un niveau de plus à chaque palier de zoom : 0 toujours, puis 1, 2, 3.
+      var visible = vue.zoom >= 6 ? 3 : vue.zoom >= 3.2 ? 2 : vue.zoom >= 1.8 ? 1 : 0;
+      for (var n = 0; n <= visible; n++) {
+        var police = (n === 0 ? "700 12px " : n === 1 ? "600 11px " : "500 10px ") +
+                     cs.getPropertyValue("--cond");
+        K.reperes.forEach(function (v) {
+          if (v.n !== n) return;
+          var s = versEcran(v.x, v.y);
+          if (s[0] < 0 || s[1] < 0 || s[0] > toile.width || s[1] > toile.height) return;
+          poser(v.nom, s[0], s[1], police, "#16201c");
+        });
+      }
+    }
+  }
+
+  // ---------- fiche ----------
+  var fiche = document.getElementById("fiche");
+  function montrerFiche(i) {
+    var sansParis = E.paris > 10;
+    var st = scoreTransport(i, "turballe", E.turballe), sp = sansParis ? 1 : scoreTransport(i, "paris", E.paris);
+    var sn = scoreNature(i), se = scoreEspace(i), sq = scorePolitique(i);
+    var lignes = [
+      ["La Turballe", heures(temps(i, "turballe")), st >= 0],
+      ["Paris", heures(temps(i, "paris")), sansParis ? null : sp >= 0],
+      ["Escalade", virgule(C.dist_escalade[i] / 10, 1) + " km", E.natureOn ? (C.dist_escalade[i] / 10 <= E.nature) : null],
+      ["Parapente", virgule(C.dist_parapente[i] / 10, 1) + " km", E.natureOn ? (C.dist_parapente[i] / 10 <= E.nature) : null],
+      ["Sites à 30 km", C.n_escalade[i] + " escalade, " + C.n_parapente[i] + " parapente", null],
+      ["Terrain", milliers(C.prix_terrain[i]) + " €/m²", E.espaceOn ? (C.prix_terrain[i] < E.terrain) : null],
+      ["Bâti", milliers(C.prix_bati[i]) + " €/m²", E.espaceOn ? (C.prix_bati[i] < E.bati) : null],
+      ["Familles cochées", Math.round(sq * 100) + " % des voix", null]
+    ];
+    FAMILLES.forEach(function (f) {
+      lignes.push([f[1], Math.round(C["part_" + f[0]][i] / 100) + " %", null]);
+    });
+    var titre = retenues[i]
+      ? "score " + virgule(scores[i], 2)
+      : "écartée par un filtre";
+    var d = K.sites_detail[i] || {};
+    var listes = "";
+    if (d.e) {
+      listes += '<div class="sites-liste"><span class="k">Sites d\'escalade (FFME)</span><ul>' +
+        d.e.map(function (x) {
+          return "<li><b>" + x[0] + "</b> <span>" + x[1] + "</span> " +
+            '<a href="' + K.prefixe_ffme + x[2] + '/" target="_blank" rel="noopener">fiche FFME</a></li>';
+        }).join("") + "</ul></div>";
+    }
+    if (d.p) {
+      listes += '<div class="sites-liste"><span class="k">Sites de parapente / kitesurf (FFVL)</span><ul>' +
+        d.p.map(function (x) { return "<li><b>" + x[0] + "</b> <span>" + x[1] + "</span></li>"; })
+        .join("") + "</ul></div>";
+    }
+    fiche.innerHTML = '<h3>' + K.noms[i] + ' <span class="dept">(' + K.depts[DEPT[i]] + ')</span>' +
+      ' <span class="hab">' + milliers(POP[i]) + " habitants · " + titre + "</span></h3>" +
+      '<div class="criteres">' + lignes.map(function (l) {
+        var c = l[2] === null ? "" : (l[2] ? " oui" : " ko");
+        return '<div class="critere' + c + '"><span class="k">' + l[0] + '</span><span class="v">' + l[1] + "</span></div>";
+      }).join("") + "</div>" + listes;
+    fiche.hidden = false;
+  }
+
+  // ---------- interactions carte ----------
+  var glisse = null;
+  toile.addEventListener("pointerdown", function (e) {
+    glisse = { x: e.offsetX, y: e.offsetY, vx: vue.x, vy: vue.y, bouge: false };
+    toile.setPointerCapture(e.pointerId);
+  });
+  toile.addEventListener("pointermove", function (e) {
+    if (!glisse) return;
+    var dx = e.offsetX - glisse.x, dy = e.offsetY - glisse.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) glisse.bouge = true;
+    vue.x = glisse.vx - dx * (LARG / vue.zoom) / toile.width;
+    vue.y = glisse.vy - dy * (HAUT / vue.zoom) / toile.height;
+    dessiner();
+  });
+  toile.addEventListener("pointerup", function (e) {
+    if (glisse && !glisse.bouge && idx) {
+      var g = versGrille(e.offsetX, e.offsetY);
+      var px = Math.floor(g[0]), py = Math.floor(g[1]);
+      if (px >= 0 && py >= 0 && px < LARG && py < HAUT) {
+        var c = idx[py * LARG + px];
+        if (c) montrerFiche(c - 1); else fiche.hidden = true;
+      }
+    }
+    glisse = null;
+  });
+  toile.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var g = versGrille(e.offsetX, e.offsetY);
+    vue.zoom = Math.max(1, Math.min(12, vue.zoom * (e.deltaY < 0 ? 1.25 : 0.8)));
+    vue.x = g[0] - e.offsetX * (LARG / vue.zoom) / toile.width;
+    vue.y = g[1] - e.offsetY * (HAUT / vue.zoom) / toile.height;
+    dessiner();
+  }, { passive: false });
+  function zoomer(f) {
+    var cx = vue.x + (LARG / vue.zoom) / 2, cy = vue.y + (HAUT / vue.zoom) / 2;
+    vue.zoom = Math.max(1, Math.min(12, vue.zoom * f));
+    vue.x = cx - (LARG / vue.zoom) / 2; vue.y = cy - (HAUT / vue.zoom) / 2;
+    dessiner();
+  }
+  document.getElementById("z-plus").onclick = function () { zoomer(1.6); };
+  document.getElementById("z-moins").onclick = function () { zoomer(0.625); };
+  document.getElementById("z-reset").onclick = function () { vue = { x: 0, y: 0, zoom: 1 }; dessiner(); };
+
+  // ---------- réglages ----------
+  var cases = document.getElementById("familles");
+  FAMILLES.forEach(function (f) {
+    var l = document.createElement("label");
+    l.innerHTML = '<input type="checkbox" value="' + f[0] + '"' +
+      (BASE.familles.indexOf(f[0]) >= 0 ? " checked" : "") + "> " + f[2];
+    l.title = f[1];
+    cases.appendChild(l);
+  });
+
+  function lireReglages() {
+    E.turballe = +document.getElementById("r-turballe").value;
+    E.paris = +document.getElementById("r-paris").value;
+    E.mode = document.getElementById("r-mode").value;
+    E.nature = +document.getElementById("r-nature").value;
+    E.natureOn = document.getElementById("c-nature").checked;
+    E.terrain = +document.getElementById("r-terrain").value;
+    E.bati = +document.getElementById("r-bati").value;
+    E.espaceOn = document.getElementById("c-espace").checked;
+    E.familles = Array.prototype.slice.call(cases.querySelectorAll("input:checked"))
+      .map(function (c) { return c.value; });
+    document.getElementById("v-turballe").textContent = "≤ " + E.turballe + " h";
+    document.getElementById("v-paris").textContent = E.paris > 10 ? "sans limite" : "≤ " + E.paris + " h";
+    document.getElementById("v-nature").textContent = "≤ " + E.nature + " km";
+    document.getElementById("v-terrain").textContent = "< " + milliers(E.terrain) + " €/m²";
+    document.getElementById("v-bati").textContent = "< " + milliers(E.bati) + " €/m²";
+  }
+
+  function rafraichir() {
+    lireReglages();
+    calculer();
+    document.getElementById("compteur").innerHTML =
+      "<b>" + milliers(nbRetenues) + "</b> communes retenues<br><span class=\"sec\">sur " + milliers(N) + "</span>";
+    peindre();
+    remplirEntonnoir();
+    remplirVilles();
+  }
+
+  document.querySelectorAll(".reglages input, .reglages select").forEach(function (el) {
+    el.addEventListener("input", rafraichir);
+  });
+  ["b-escalade", "b-parapente", "b-parcs", "b-noms"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function (e) { e.stopPropagation(); dessiner(); });
+  });
+  document.getElementById("reinit").onclick = function () {
+    document.getElementById("r-turballe").value = BASE.turballe;
+    document.getElementById("r-paris").value = BASE.paris;
+    document.getElementById("r-mode").value = BASE.mode;
+    document.getElementById("r-nature").value = BASE.nature;
+    document.getElementById("c-nature").checked = true;
+    document.getElementById("r-terrain").value = BASE.terrain;
+    document.getElementById("r-bati").value = BASE.bati;
+    document.getElementById("c-espace").checked = true;
+    cases.querySelectorAll("input").forEach(function (c) {
+      c.checked = BASE.familles.indexOf(c.value) >= 0;
+    });
+    rafraichir();
+  };
+
+  // ---------- recherche d'une commune ----------
+  // Recherche sans accents : « Chateauroux » doit trouver « Châteauroux ».
+  var sansAccents = K.noms.map(function (n) {
+    return n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  });
+  var champQ = document.getElementById("q-commune"), resultats = document.getElementById("q-resultats");
+  champQ.addEventListener("input", function () {
+    var q = champQ.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    resultats.innerHTML = "";
+    if (q.length < 2) { resultats.hidden = true; return; }
+    var debut = [], dedans = [];
+    for (var i = 0; i < N && debut.length + dedans.length < 400; i++) {
+      var k = sansAccents[i].indexOf(q);
+      if (k === 0) debut.push(i); else if (k > 0) dedans.push(i);
+    }
+    var trouves = debut.concat(dedans).sort(function (a, b) { return POP[b] - POP[a]; }).slice(0, 12);
+    trouves.forEach(function (i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.innerHTML = K.noms[i] + ' <span class="dept">' + K.depts[DEPT[i]] + " · " + milliers(POP[i]) + "</span>";
+      b.onclick = function () { allerA(i); };
+      resultats.appendChild(b);
+    });
+    resultats.hidden = trouves.length === 0;
+  });
+
+  function allerA(i) {
+    vue.zoom = Math.max(vue.zoom, 6);
+    vue.x = C.centre_x[i] - (LARG / vue.zoom) / 2;
+    vue.y = C.centre_y[i] - (HAUT / vue.zoom) / 2;
+    dessiner();
+    montrerFiche(i);
+    resultats.hidden = true;
+    champQ.value = K.noms[i];
+    fiche.scrollIntoView({ block: "nearest" });
+  }
+
+  // ---------- entonnoir ----------
+  function remplirEntonnoir() {
+    var e = document.getElementById("entonnoir");
+    e.innerHTML = "";
+    var lignes = Object.keys(parFiltre).map(function (k) { return [k, parFiltre[k]]; });
+    lignes.push(["Tous ensemble", nbRetenues]);
+    lignes.forEach(function (l, i) {
+      var pct = l[1] / N * 100;
+      var d = document.createElement("div");
+      d.className = "barre-ligne" + (i === lignes.length - 1 ? " total" : "");
+      d.innerHTML = "<span>" + l[0] + "</span>" +
+        '<span class="barre-piste"><span class="barre-jauge" style="width:' + pct.toFixed(1) + '%"></span></span>' +
+        '<span class="barre-val">' + milliers(l[1]) + " · " + pct.toFixed(0) + " %</span>";
+      e.appendChild(d);
+    });
+  }
+
+  // ---------- tableaux ----------
+  function cellule(html, tri, libelle, classe) {
+    var td = document.createElement("td");
+    td.innerHTML = html;
+    td.dataset.tri = tri;
+    td.dataset.libelle = libelle;
+    if (classe) td.className = classe;
+    return td;
+  }
+  var R = K.rapport;
+
+  (function zones() {
+    var tb = document.querySelector("#t-zones tbody");
+    R.zones.forEach(function (z) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cellule('<span class="lieu">' + z.zone + '</span><span class="sec">' +
+        z.dept + " · " + z.n + " communes</span>", z.zone, "Zone", "principal"));
+      tr.appendChild(cellule(puce(z.score), z.score, "Score", "num"));
+      tr.appendChild(cellule("Paris " + virgule(z.paris, 1) + " h<span class=\"sec\">Turballe " +
+        virgule(z.turballe, 1) + " h</span>", z.paris, "Trajets"));
+      tr.appendChild(cellule("bâti " + milliers(z.bati) + "<span class=\"sec\">terrain " +
+        milliers(z.terrain) + "</span>", z.bati, "Prix €/m²"));
+      tr.appendChild(cellule(Math.round(z.gauche) + " %", z.gauche, "Gauche", "num"));
+      tr.appendChild(cellule(z.esc + " escal.<span class=\"sec\">" + z.para + " parap.</span>", z.esc, "Outdoor"));
+      tr.appendChild(cellule('<span class="sec">' + z.parc + "</span>", z.parc, "Parc"));
+      tb.appendChild(tr);
+    });
+  })();
+
+  function remplirVilles() {
+    var tb = document.querySelector("#t-villes tbody");
+    tb.innerHTML = "";
+    R.villes.forEach(function (v, rang) {
+      var i = K.villes_idx[rang];
+      var sansParis = E.paris > 10;
+      var st = scoreTransport(i, "turballe", E.turballe);
+      var sp = sansParis ? 1 : scoreTransport(i, "paris", E.paris);
+      var sn = scoreNature(i), se = scoreEspace(i), sq = scorePolitique(i);
+      var echecs = [];
+      if (st < 0) echecs.push("La Turballe");
+      if (!sansParis && sp < 0) echecs.push("Paris");
+      if (E.natureOn && sn <= 0) echecs.push("outdoor");
+      if (E.espaceOn && se <= 0) echecs.push("prix");
+      if (sq <= 0) echecs.push("politique");
+      var ok = echecs.length === 0;
+
+      var tr = document.createElement("tr");
+      if (!ok) tr.classList.add("ecarte");
+      tr.dataset.retenue = ok ? "1" : "0";
+      tr.dataset.texte = (v.nom + " " + v.dept + " " + v.parc + " " + echecs.join(" ")).toLowerCase();
+      var marque = v.prix_impute ? ' <span class="alerte">‡</span>' : "";
+      tr.appendChild(cellule('<span class="lieu">' + v.nom + '</span> <span class="dept">' + v.dept +
+        '</span><span class="sec">' + v.parc + " · " + Math.round(v.parc_km) + " km</span>",
+        v.nom, "Ville", "principal"));
+      tr.appendChild(cellule(milliers(v.pop), v.pop, "Habitants", "num"));
+      tr.appendChild(cellule("Paris " + heures(temps(i, "paris")) + '<span class="sec">Turballe ' +
+        heures(temps(i, "turballe")) + "</span>", temps(i, "paris"), "Trajets"));
+      tr.appendChild(cellule(v.esc + " escal.<span class=\"sec\">" + v.para + " parap.</span>", v.esc, "Outdoor"));
+      tr.appendChild(cellule("bâti " + milliers(v.bati) + marque + '<span class="sec">terrain ' +
+        milliers(v.terrain) + "</span>", v.bati, "Prix €/m²"));
+      tr.appendChild(cellule(Math.round(v.gauche) + " %", v.gauche, "Gauche", "num"));
+      tr.appendChild(cellule(ok ? '<span class="ok">retenue</span> ' + puce(scores[i])
+        : echecs.map(function (x) { return '<span class="etiq ko">' + x + "</span>"; }).join(""),
+        ok ? 1 : 0, "Verdict"));
+      tb.appendChild(tr);
+    });
+    filtrerVilles();
+    if (triCourant["t-villes"]) appliquerTri("t-villes", triCourant["t-villes"].col, triCourant["t-villes"].sens);
+  }
+
+  var triCourant = {};
+  function appliquerTri(id, col, sens) {
+    var table = document.getElementById(id), corps = table.tBodies[0];
+    var type = table.tHead.rows[0].cells[col].dataset.type;
+    Array.prototype.slice.call(corps.rows).sort(function (a, b) {
+      var x = a.cells[col].dataset.tri, y = b.cells[col].dataset.tri;
+      return (type === "num" ? (parseFloat(x) - parseFloat(y)) : String(x).localeCompare(String(y), "fr")) * sens;
+    }).forEach(function (l) { corps.appendChild(l); });
+    triCourant[id] = { col: col, sens: sens };
+    Array.prototype.forEach.call(table.tHead.rows[0].cells, function (th, i) {
+      th.removeAttribute("aria-sort");
+      th.querySelector(".fl").textContent = "";
+      if (i === col) {
+        th.setAttribute("aria-sort", sens > 0 ? "ascending" : "descending");
+        th.querySelector(".fl").textContent = sens > 0 ? "▲" : "▼";
+      }
+    });
+  }
+  ["t-zones", "t-villes"].forEach(function (id) {
+    var table = document.getElementById(id);
+    var select = document.getElementById(id === "t-zones" ? "tri-zones" : "tri-villes");
+    Array.prototype.forEach.call(table.tHead.rows[0].cells, function (th, i) {
+      th.tabIndex = 0;
+      function basculer() {
+        var sens = triCourant[id] && triCourant[id].col === i && triCourant[id].sens === 1 ? -1 : 1;
+        appliquerTri(id, i, sens);
+        select.value = i;
+      }
+      th.addEventListener("click", basculer);
+      th.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); basculer(); }
+      });
+      var o = document.createElement("option");
+      o.value = i; o.textContent = th.textContent.trim();
+      select.appendChild(o);
+    });
+    select.addEventListener("change", function () { appliquerTri(id, +select.value, -1); });
+  });
+
+  var caseRetenues = document.getElementById("f-retenues");
+  var champ = document.getElementById("f-texte");
+  function filtrerVilles() {
+    var q = champ.value.trim().toLowerCase(), seules = caseRetenues.checked, n = 0;
+    Array.prototype.forEach.call(document.querySelector("#t-villes tbody").rows, function (tr) {
+      var ok = (!seules || tr.dataset.retenue === "1") && (!q || tr.dataset.texte.indexOf(q) >= 0);
+      tr.hidden = !ok;
+      if (ok) n++;
+    });
+    document.getElementById("compte-villes").textContent = n + (n > 1 ? " villes affichées" : " ville affichée");
+  }
+  caseRetenues.addEventListener("change", filtrerVilles);
+  champ.addEventListener("input", filtrerVilles);
+
+  // ---------- parties statiques ----------
+  (function courbe() {
+    var c = document.getElementById("courbe");
+    R.arbitrage.forEach(function (a, i) {
+      var saut = i > 0 && a.score - R.arbitrage[i - 1].score >= 0.05;
+      var l = document.createElement("div");
+      l.className = "courbe-ligne" + (saut ? " saut" : "");
+      l.innerHTML = "<span>" + a.heures + " h</span>" +
+        '<span class="piste"><span class="jauge" style="width:' + (a.score * 100).toFixed(1) + '%"></span></span>' +
+        '<span class="val">' + virgule(a.score, 3) + "</span>";
+      c.appendChild(l);
+      var o = document.createElement("div");
+      o.className = "courbe-ou";
+      o.textContent = a.commune + " (" + a.dept + ") · " + a.esc + " sites d'escalade, " +
+        a.para + " de parapente · terrain " + milliers(a.terrain) + " €/m²";
+      c.appendChild(o);
+    });
+  })();
+
+  (function scenarios() {
+    var libelles = { montagne: "Montagne", ferme: "Ferme", compromis: "Compromis" };
+    var hote = document.getElementById("scenarios");
+    R.foyer.forEach(function (s) {
+      var bloc = document.createElement("div");
+      bloc.className = "scenario";
+      var h = "<h3>" + s.scenario + '<span class="contraintes">La Turballe ≤ ' + s.turballe_max +
+        " h · " + (s.paris_max ? "Paris ≤ " + s.paris_max + " h" : "Paris sans limite") +
+        " · " + milliers(s.communes) + ' communes</span></h3><div class="trio">';
+      Object.keys(libelles).forEach(function (k) {
+        var o = s.objectifs[k];
+        h += '<div class="choix ' + k + '"><span class="obj">' + libelles[k] + " · " +
+          virgule(o.score, 2) + '</span><span class="ou">' + o.ville +
+          ' <span class="dept">' + o.ville_dept + '</span></span><span class="detail">' +
+          (o.ville_km > 2 ? "zone à " + o.ville_km + " km · " : "") + "dép. " + o.dept + "<br><b>" +
+          o.esc + "</b> escalade · <b>" + o.para + "</b> parapente<br>Turballe <b>" +
+          virgule(o.turballe, 1) + " h</b> · Paris <b>" + virgule(o.paris, 1) +
+          " h</b><br>terrain <b>" + milliers(o.terrain) + "</b> · bâti <b>" + milliers(o.bati) +
+          '</b> €/m²</span><span class="ex">' + o.exemples + "</span></div>";
+      });
+      bloc.innerHTML = h + "</div>";
+      hote.appendChild(bloc);
+    });
+  })();
+
+  // ---------- démarrage ----------
+  var img = new Image();
+  img.onload = function () {
+    var c = document.createElement("canvas");
+    c.width = LARG; c.height = HAUT;
+    var g = c.getContext("2d", { willReadFrequently: true });
+    g.drawImage(img, 0, 0);
+    var d = g.getImageData(0, 0, LARG, HAUT).data;
+    idx = new Uint16Array(LARG * HAUT);
+    for (var p = 0, q = 0; p < idx.length; p++, q += 4) idx[p] = (d[q] << 8) | d[q + 1];
+    imageRes = sctx.createImageData(LARG, HAUT);
+    ajusterTaille();
+    rafraichir();
+  };
+  img.src = "grille.png";
+
+  window.addEventListener("resize", ajusterTaille);
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  (mq.addEventListener ? mq.addEventListener.bind(mq, "change") : mq.addListener.bind(mq))(peindre);
+  rafraichir();
+})();
+</script>
